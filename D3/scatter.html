@@ -89,14 +89,24 @@ d3.csv("indicators.csv", function(error, data) {
   }
   data = data.map(function(d){return {"key": d.key, "values": d.values.map(makeDataPoint)};});
 
+  // get min and max values for x and set domains
+  xValuesForYear = function(dataForYear){return dataForYear.values.map(function(d){return d.x})};
+  allXValues = d3.merge(data.map(xValuesForYear));
+  x.domain(d3.extent(allXValues)).nice();
+  yValuesForYear = function(dataForYear){return dataForYear.values.map(function(d){return d.y})};
+  allYValues = d3.merge(data.map(yValuesForYear));
+  console.log(allYValues);
+  y.domain(d3.extent(allYValues)).nice();
+
   // make into associative array, so that can address by year todo can make this an immutable operation?
   dataAss = {}
   data.forEach(function(d){dataAss[d.key] = d.values});
-  data = dataAss;
+  //data = dataAss;
 
-  data = data[1998]
+  data = data[0].values;
 
-  /*svg.append("g")
+
+  svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
       .call(xAxis)
@@ -123,9 +133,9 @@ d3.csv("indicators.csv", function(error, data) {
     .enter().append("circle")
       .attr("class", "dot")
       .attr("r", 3.5)
-      .attr("cx", function(d) { return x(d.sepalWidth); })
-      .attr("cy", function(d) { return y(d.sepalLength); })
-      .style("fill", function(d) { return color(d.species); });*/
+      .attr("cx", function(d) { console.log(d);return x(d.x); })
+      .attr("cy", function(d) { return y(d.y); })
+      //.style("fill", function(d) { return color(d.species); });
 
 
 });
