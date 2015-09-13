@@ -44,15 +44,6 @@ h4 {
 </style>
 <body>
 
-<!--div class="goal">Goal 1. Eradicate extreme poverty and hunger</div><br/>
-<div class="goal">Goal 2. Achieve universal primary education</div><br/>
-<div class="goal">Goal 3. Promote gender equality and empower women</div><br/>
-<div class="goal">Goal 4. Reduce child mortality</div><br/>
-<div class="goal">Goal 5. Improve maternal health</div><br/>
-<div class="goal">Goal 6. Combat HIV/AIDS, malaria and other diseases</div><br/>
-<div class="goal">Goal 7. Ensure environmental sustainability</div><br/>
-<div class="goal">Goal 8. Develop a global partnership for development</div><br/>-->
-
 <script src="d3.min.js"></script>
 <script src="queue.v1.min.js"></script>
 <script src="d3-tip.js"></script>
@@ -96,7 +87,7 @@ function makeSmallMultiples(error, data, names) {
 
   data = d3.nest()
        .key(function(d) {return d.Series})
-       .entries(data);
+       .map(data);
 
   dict = d3.nest()
        .key(function(d) {return d.GoalId})
@@ -177,9 +168,7 @@ function makeSmallMultiples(error, data, names) {
       .text(function(d){return series_names[d.key];});
 
   // one SVG element for each series
-  var svg = d3.select("body").selectAll("svg")
-      .data(data)
-    .enter().append("svg")
+  var svg = seriesDivs.append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -198,7 +187,7 @@ function makeSmallMultiples(error, data, names) {
 
   // bars for each series
   svg.selectAll(".bar")
-      .data(function(d) {return d.values;})
+      .data(function(d) {return data[d.key];})
     .enter().append("rect")
       .attr("class", "bar")
       .attr("x", function(d) {return x(d.Year); })
@@ -207,13 +196,6 @@ function makeSmallMultiples(error, data, names) {
       .attr("y", function(d) { return y(d.Percentage); })
       .attr("height", function(d) { return height - y(d.Percentage); });
 
-  // label each series
-  svg.append("text")
-      .attr("x", 5)
-      .attr("y", -5)
-      .attr('class', 'bar-title')
-      .style("text-anchor", "start")
-      .text(function(d) {return names[d.key]; })
 
 }
 
