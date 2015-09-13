@@ -11,6 +11,21 @@
   font: 10px sans-serif;
 }
 
+h1 {
+  font: 16px sans-serif;
+}
+
+h2 {
+  font: 14px sans-serif;
+}
+
+h3 {
+  font: 12px sans-serif;
+}
+
+h4 {
+  font: 10px sans-serif;
+}
 .axis path,
 .axis line {
   fill: none;
@@ -28,12 +43,24 @@
 
 </style>
 <body>
+
+<!--div class="goal">Goal 1. Eradicate extreme poverty and hunger</div><br/>
+<div class="goal">Goal 2. Achieve universal primary education</div><br/>
+<div class="goal">Goal 3. Promote gender equality and empower women</div><br/>
+<div class="goal">Goal 4. Reduce child mortality</div><br/>
+<div class="goal">Goal 5. Improve maternal health</div><br/>
+<div class="goal">Goal 6. Combat HIV/AIDS, malaria and other diseases</div><br/>
+<div class="goal">Goal 7. Ensure environmental sustainability</div><br/>
+<div class="goal">Goal 8. Develop a global partnership for development</div><br/>-->
+
 <script src="d3.min.js"></script>
+<script src="queue.v1.min.js"></script>
+<script src="d3-tip.js"></script>
 <script>
 
-var margin = {top: 15, right: 50, bottom: 20, left: 40},
-    width = 400 - margin.left - margin.right,
-    height = 140 - margin.top - margin.bottom;
+var margin = {top: 25, right: 80, bottom: 60, left: 80},
+    width = 500 - margin.left - margin.right,
+    height = 200 - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
@@ -51,13 +78,53 @@ var yAxis = d3.svg.axis()
     .orient("left")
     .tickValues([0, 0.5, 1.0], "%");
 
-d3.csv("metadata.csv", function(error, data) {
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return "<strong>" + d.Year + "</strong><br/><span style='color:#fff'>" + d.percent*100 + "%</span>";
+  })
+
+queue()
+    .defer(d3.csv, 'metadata.csv') 
+    .defer(d3.csv, 'names.csv')  
+    .await(makeSmallMultiples); 
+
+function makeSmallMultiples(error, data, names) {
+
   if (error) throw error;
-   
+
   data = d3.nest()
        .key(function(d) {return d.Series})
        .entries(data);
 
+  dict = d3.nest()
+       .key(function(d) {return d.GoalId})
+       .key(function(d) {return d.TargetId})
+       .key(function(d) {return d.IndicatorId})
+       .key(function(d) {return d.SeriesId})
+       //.rollup(function(d) {return d[0].GoalName})
+       .entries(names);
+
+  goal_names = d3.nest()
+       .key(function(d) {return d.GoalId})
+       .rollup(function(d) {return d[0].GoalName})
+       .map(names);
+
+  target_names = d3.nest()
+       .key(function(d) {return d.TargetId})
+       .rollup(function(d) {return d[0].TargetName})
+       .map(names);
+
+  indicator_names = d3.nest()
+       .key(function(d) {return d.IndicatorId})
+       .rollup(function(d) {return d[0].IndicatorName})
+       .map(names);
+
+  series_names = d3.nest()
+       .key(function(d) {return d.SeriesId})
+       .rollup(function(d) {return d[0].SeriesName})
+       .map(names);
 
   x.domain([ 1983, 1984, 1985, 1986, 1987, 1988, 1989, 
              1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 
@@ -66,7 +133,50 @@ d3.csv("metadata.csv", function(error, data) {
   y.domain([0, 1]);
 
 
-  // SVG element for each series
+  // one div for every goal
+  var goalDivs = d3.select("body").selectAll("div")
+       .data(dict)
+     .enter().append("div")
+       .attr("class", function(d){return "goal " + d.key;});
+ 
+  // name of goals
+  goalDivs.append("h1")
+      .text(function(d){return goal_names[d.key];});
+
+  // one div for every target within each goal
+  var targetDivs = goalDivs.selectAll("div")
+      .data(function(d) {return d.values})
+     .enter()
+      .append("div")
+      .attr("class", function(d){return "target "+d.key});
+
+  // name of targets
+  targetDivs.append("h2")
+      .text(function(d){return target_names[d.key];});
+
+  // on div for every indicator
+  var indicatorDivs = targetDivs.selectAll("div")
+      .data(function(d) {return d.values})
+     .enter()
+      .append("div")
+      .attr("class", function(d){return "indicator "+d.key}); 
+
+  // name of indicators
+  indicatorDivs.append("h3")
+      .text(function(d){return indicator_names[d.key];});
+
+  // one div for every series
+  var seriesDivs = indicatorDivs.selectAll("div")
+      .data(function(d) {return d.values})
+     .enter()
+      .append("div")
+      .attr("class", function(d){return "series "+d.key}); 
+
+  // name of series
+  seriesDivs.append("h4")
+      .text(function(d){return series_names[d.key];});
+
+  // one SVG element for each series
   var svg = d3.select("body").selectAll("svg")
       .data(data)
     .enter().append("svg")
@@ -97,13 +207,16 @@ d3.csv("metadata.csv", function(error, data) {
       .attr("y", function(d) { return y(d.Percentage); })
       .attr("height", function(d) { return height - y(d.Percentage); });
 
-  // Add a small label for the symbol name.
+  // label each series
   svg.append("text")
-      .attr("x", width/2.0)
-      .attr("y", 0)
-      .style("text-anchor", "end")
-      .text(function(d) { return d.key; });
-});
+      .attr("x", 5)
+      .attr("y", -5)
+      .attr('class', 'bar-title')
+      .style("text-anchor", "start")
+      .text(function(d) {return names[d.key]; })
+
+}
 
 </script>
-
+</body>
+</html>
