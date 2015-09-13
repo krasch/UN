@@ -132,14 +132,25 @@ function makeSmallMultiples(error, data, names) {
  
   // name of goals
   goalDivs.append("h1")
-      .text(function(d){return goal_names[d.key];});
+      .text(function(d){return goal_names[d.key];})
+      .on("click", function(targets){
+           targets.values.forEach(
+                 function(d){t = d3.select("#target"+d.key);
+                              if (t.style("display")==="none")
+                                  t.style("display", "inline");
+                              else
+                                  t.style("display", "none");
+                             }
+           )
+	})
 
   // one div for every target within each goal
   var targetDivs = goalDivs.selectAll("div")
       .data(function(d) {return d.values})
      .enter()
       .append("div")
-      .attr("class", function(d){return "target "+d.key});
+      .attr("id", function(d){return "target"+d.key})
+      .style("display", "none");
 
   // name of targets
   targetDivs.append("h2")
