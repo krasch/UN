@@ -85,129 +85,170 @@ function makeSmallMultiples(error, data, names) {
 
   if (error) throw error;
 
-  data = d3.nest()
-       .key(function(d) {return d.Series})
-       .map(data);
+  var goals = addGoals();
+  var targets = addTargets(goals);
+  var indicators = addIndicators(targets);
+  var series = addSeries(indicators);
 
-  dict = d3.nest()
+
+  function addGoals(){
+
+     var partOfs = d3.nest()
        .key(function(d) {return d.GoalId})
        .key(function(d) {return d.TargetId})
        .key(function(d) {return d.IndicatorId})
        .key(function(d) {return d.SeriesId})
-       //.rollup(function(d) {return d[0].GoalName})
        .entries(names);
 
-  goal_names = d3.nest()
-       .key(function(d) {return d.GoalId})
-       .rollup(function(d) {return d[0].GoalName})
-       .map(names);
+     var goal_names = d3.nest()
+        .key(function(d) {return d.GoalId})
+        .rollup(function(d) {return d[0].GoalName})
+        .map(names);
 
-  target_names = d3.nest()
+      // one div for every goal
+      var goalDivs = d3.select("body").selectAll("div")
+	  .data(partOfs)
+	  .enter().append("div")
+	  .attr("class", function(d){return "goal " + d.key;});
+	 
+      // hide/show targets for this goal 
+      function toggleTarget(target) {
+         target = d3.select("#target"+target.key);
+         if (target.style("display")==="none")
+	     target.style("display", "inline");
+         else
+	     target.style("display", "none");
+     }  
+  
+      // name of goals as heading
+      goalDivs.append("h1")
+	      .text(function(d){return goal_names[d.key];})
+	      .on("click", function(targets){targets.values.forEach(toggleTarget)})
+
+      return goalDivs;  
+  };
+
+  function addTargets(goalDivs){
+
+     target_names = d3.nest()
        .key(function(d) {return d.TargetId})
        .rollup(function(d) {return d[0].TargetName})
        .map(names);
 
-  indicator_names = d3.nest()
+     // one div for every target within each goal
+     var targetDivs = goalDivs.selectAll("div")
+         .data(function(d) {return d.values})
+         .enter()
+         .append("div")
+         .attr("id", function(d){return "target"+d.key})
+         .style("display", "none");
+
+      // hide/show indicators for this target 
+      function toggleIndicator(indicator) {
+         indicator = d3.select("#indicator"+indicator.key);
+         if (indicator.style("display")==="none")
+	     indicator.style("display", "inline");
+         else
+	     indicator.style("display", "none");
+     }  
+
+     // name of targets
+     targetDivs.append("h2")
+         .text(function(d){return target_names[d.key];})
+	 .on("click", function(indicators){indicators.values.forEach(toggleIndicator)})
+     
+     return targetDivs;
+  }
+
+  function addIndicators(targetDivs) {
+
+     indicator_names = d3.nest()
        .key(function(d) {return d.IndicatorId})
        .rollup(function(d) {return d[0].IndicatorName})
        .map(names);
 
-  series_names = d3.nest()
-       .key(function(d) {return d.SeriesId})
-       .rollup(function(d) {return d[0].SeriesName})
-       .map(names);
+     // one div for every indicator
+     var indicatorDivs = targetDivs.selectAll("div")
+         .data(function(d) {return d.values})
+         .enter()
+         .append("div")
+         .attr("id", function(d){return "indicator"+d.key})
+         .style("display", "none");  
 
-  x.domain([ 1983, 1984, 1985, 1986, 1987, 1988, 1989, 
-             1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 
-             2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
-             2010, 2011, 2012, 2013, 2014, 2015]);
-  y.domain([0, 1]);
+      // hide/show series for this indicator
+      function toggleSeries(series) {
+         series = d3.select("#series"+series.key);
+         if (series.style("display")==="none")
+	     series.style("display", "inline");
+         else
+	     series.style("display", "none");
+     }  
 
+     // name of indicators
+     indicatorDivs.append("h3")
+         .text(function(d){return indicator_names[d.key];})
+	 .on("click", function(series){series.values.forEach(toggleSeries)})
 
-  // one div for every goal
-  var goalDivs = d3.select("body").selectAll("div")
-       .data(dict)
-     .enter().append("div")
-       .attr("class", function(d){return "goal " + d.key;});
+     return indicatorDivs;
+  }
+
+  function addSeries(indicatorDivs) {
  
-  // name of goals
-  goalDivs.append("h1")
-      .text(function(d){return goal_names[d.key];})
-      .on("click", function(targets){
-           targets.values.forEach(
-                 function(d){t = d3.select("#target"+d.key);
-                              if (t.style("display")==="none")
-                                  t.style("display", "inline");
-                              else
-                                  t.style("display", "none");
-                             }
-           )
-	})
+     data = d3.nest()
+          .key(function(d) {return d.Series})
+          .map(data);
 
-  // one div for every target within each goal
-  var targetDivs = goalDivs.selectAll("div")
-      .data(function(d) {return d.values})
-     .enter()
-      .append("div")
-      .attr("id", function(d){return "target"+d.key})
-      .style("display", "none");
+     series_names = d3.nest()
+          .key(function(d) {return d.SeriesId})
+          .rollup(function(d) {return d[0].SeriesName})
+          .map(names);
 
-  // name of targets
-  targetDivs.append("h2")
-      .text(function(d){return target_names[d.key];});
+     x.domain([ 1983, 1984, 1985, 1986, 1987, 1988, 1989, 
+                1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 
+                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
+                2010, 2011, 2012, 2013, 2014, 2015]);
+     y.domain([0, 1]);
 
-  // on div for every indicator
-  var indicatorDivs = targetDivs.selectAll("div")
-      .data(function(d) {return d.values})
-     .enter()
-      .append("div")
-      .attr("class", function(d){return "indicator "+d.key}); 
+     // one div for every series
+    var seriesDivs = indicatorDivs.selectAll("div")
+       .data(function(d) {return d.values})
+       .enter()
+       .append("div")
+       .attr("id", function(d){return "series"+d.key})
+       .style("display", "none"); 
 
-  // name of indicators
-  indicatorDivs.append("h3")
-      .text(function(d){return indicator_names[d.key];});
-
-  // one div for every series
-  var seriesDivs = indicatorDivs.selectAll("div")
-      .data(function(d) {return d.values})
-     .enter()
-      .append("div")
-      .attr("class", function(d){return "series "+d.key}); 
-
-  // name of series
-  seriesDivs.append("h4")
+    // name of series
+    seriesDivs.append("h4")
       .text(function(d){return series_names[d.key];});
 
-  // one SVG element for each series
-  var svg = seriesDivs.append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    // one SVG element for each series
+    var svg = seriesDivs.append("svg")
+       .attr("width", width + margin.left + margin.right)
+       .attr("height", height + margin.top + margin.bottom)
+       .append("g")
+       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-  // x axis for each series
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis)
+    // x axis for each series
+    svg.append("g")
+       .attr("class", "x axis")
+       .attr("transform", "translate(0," + height + ")")
+       .call(xAxis)
 
-  // y axis for each series
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
+    // y axis for each series
+    svg.append("g")
+       .attr("class", "y axis")
+       .call(yAxis)
 
-  // bars for each series
-  svg.selectAll(".bar")
-      .data(function(d) {return data[d.key];})
-    .enter().append("rect")
-      .attr("class", "bar")
-      .attr("x", function(d) {return x(d.Year); })
-      .attr("width", x.rangeBand())
-      //.attr("width", 3)
-      .attr("y", function(d) { return y(d.Percentage); })
-      .attr("height", function(d) { return height - y(d.Percentage); });
-
-
+    // bars for each series
+    svg.selectAll(".bar")
+       .data(function(d) {return data[d.key];})
+       .enter().append("rect")
+       .attr("class", "bar")
+       .attr("x", function(d) {return x(d.Year); })
+       .attr("width", x.rangeBand())
+       .attr("y", function(d) { return y(d.Percentage); })
+       .attr("height", function(d) { return height - y(d.Percentage); });
+  }
 }
 
 </script>
