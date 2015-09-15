@@ -11,21 +11,27 @@
   font: 10px sans-serif;
 }
 
+.series-title {
+  font: 10px sans-serif;
+  font-style: italic;
+}
+
 h1 {
   font: 16px sans-serif;
+  color: #080808;
 }
 
-h2 {
-  font: 14px sans-serif;
+.goal {
+  width: 500px;
 }
 
-h3 {
-  font: 12px sans-serif;
-}
+/*.target {
+    border-top-style: dotted;
+    border-right-style: solid;
+    border-bottom-style: dotted;
+    border-left-style: solid;
+}*/
 
-h4 {
-  font: 10px sans-serif;
-}
 .axis path,
 .axis line {
   fill: none;
@@ -39,6 +45,19 @@ h4 {
 
 .y.axis path {
   display: none;
+}
+
+div.tooltip {   
+  position: absolute;           
+  text-align: left;           
+  width: 60px;                  
+  height: 28px;                 
+  padding: 2px;             
+  font: 12px sans-serif;        
+  background: #F8F8F8;   
+  border: 0px;      
+  border-radius: 2px;           
+  pointer-events: none;         
 }
 
 </style>
@@ -69,17 +88,18 @@ var yAxis = d3.svg.axis()
     .orient("left")
     .tickValues([0, 0.5, 1.0], "%");
 
-var tip = d3.tip()
-  .attr('class', 'd3-tip')
-  .offset([-10, 0])
-  .html(function(d) {
-    return "<strong>" + d.Year + "</strong><br/><span style='color:#fff'>" + d.percent*100 + "%</span>";
-  })
+var circleColor = d3.scale.linear()
+    .domain([0, 1])
+    .range(["seashell", "green"]);
 
 queue()
     .defer(d3.csv, 'metadata.csv') 
     .defer(d3.csv, 'names.csv')  
     .await(makeSmallMultiples); 
+
+var div = d3.select("body").append("div")   
+    .attr("class", "tooltip")               
+    .style("opacity", 0);
 
 function makeSmallMultiples(error, data, names) {
 
@@ -89,7 +109,9 @@ function makeSmallMultiples(error, data, names) {
   var targets = addTargets(goals);
   var indicators = addIndicators(targets);
   var series = addSeries(indicators);
-
+  
+  // have targets for goal 5 already open when loading the page
+  d3.select("#goal5").selectAll(".target").style("display", "inline");
 
   function addGoals(){
 
@@ -109,21 +131,12 @@ function makeSmallMultiples(error, data, names) {
       var goalDivs = d3.select("body").selectAll("div")
 	  .data(partOfs)
 	  .enter().append("div")
-	  .attr("class", function(d){return "goal " + d.key;});
+	  .attr("id", function(d){return "goal" + d.key;})
+          .attr("class", "goal");
 	 
-      // hide/show targets for this goal 
-      function toggleTarget(target) {
-         target = d3.select("#target"+target.key);
-         if (target.style("display")==="none")
-	     target.style("display", "inline");
-         else
-	     target.style("display", "none");
-     }  
-  
       // name of goals as heading
       goalDivs.append("h1")
 	      .text(function(d){return goal_names[d.key];})
-	      .on("click", function(targets){targets.values.forEach(toggleTarget)})
 
       return goalDivs;  
   };
@@ -141,22 +154,9 @@ function makeSmallMultiples(error, data, names) {
          .enter()
          .append("div")
          .attr("id", function(d){return "target"+d.key})
-         .style("display", "none");
+         .attr("class", "target")
+         .style("display", "inline");
 
-      // hide/show indicators for this target 
-      function toggleIndicator(indicator) {
-         indicator = d3.select("#indicator"+indicator.key);
-         if (indicator.style("display")==="none")
-	     indicator.style("display", "inline");
-         else
-	     indicator.style("display", "none");
-     }  
-
-     // name of targets
-     targetDivs.append("h2")
-         .text(function(d){return target_names[d.key];})
-	 .on("click", function(indicators){indicators.values.forEach(toggleIndicator)})
-     
      return targetDivs;
   }
 
@@ -173,23 +173,23 @@ function makeSmallMultiples(error, data, names) {
          .enter()
          .append("div")
          .attr("id", function(d){return "indicator"+d.key})
-         .style("display", "none");  
-
-      // hide/show series for this indicator
-      function toggleSeries(series) {
-         series = d3.select("#series"+series.key);
-         if (series.style("display")==="none")
-	     series.style("display", "inline");
-         else
-	     series.style("display", "none");
-     }  
-
-     // name of indicators
-     indicatorDivs.append("h3")
-         .text(function(d){return indicator_names[d.key];})
-	 .on("click", function(series){series.values.forEach(toggleSeries)})
+         .attr("class", "indicator")
+         .style("display", "inline");  
 
      return indicatorDivs;
+  }
+
+  function weightedAverage(seriesData) {
+     function weight(year) {
+         if ((year<1990) || (year==2015))
+            return 0.0 
+         if (year >= 2010)
+            return 0.1
+         else
+            return 0.5/20.0;
+     }
+     weightedPercentages = seriesData.map(function(d) {return weight(d.Year)*d.Percentage});
+     return d3.sum(weightedPercentages);
   }
 
   function addSeries(indicatorDivs) {
@@ -215,39 +215,68 @@ function makeSmallMultiples(error, data, names) {
        .enter()
        .append("div")
        .attr("id", function(d){return "series"+d.key})
-       .style("display", "none"); 
+       .attr("class", "series")
+       .style("display", "inline"); 
 
-    // name of series
-    seriesDivs.append("h4")
-      .text(function(d){return series_names[d.key];});
+    // one svg element for every series
+    var svg = seriesDivs.append("svg")
+              .attr("width", 50)
+              .attr("height", 50);
+
+    function configureTooltip(seriesData) {
+       seriesData = seriesData.values[0];
+       console.log(seriesData);
+       
+    }
+    tip = d3.tip().attr('class', 'd3-tip').html(configureTooltip);
+    svg.call(tip);
+
+    // one circle for each series
+    svg.append("circle")
+       .attr("class", "circle")
+       .attr("r", 11)
+       .attr("cx", 11) 
+       .attr("cy", 11)
+       .style("fill", function(d) { return circleColor(weightedAverage(data[d.key]));})
+       .on('mouseover', tip.show)
+       .on('mouseout', tip.hide);
 
     // one SVG element for each series
-    var svg = seriesDivs.append("svg")
+    /*var svg = seriesDivs.append("svg")
        .attr("width", width + margin.left + margin.right)
        .attr("height", height + margin.top + margin.bottom)
        .append("g")
-       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+       .attr("transform", "translate(" + margin.left + "," + margin.top + ")");*/
 
     // x axis for each series
-    svg.append("g")
+    /*svg.append("g")
        .attr("class", "x axis")
        .attr("transform", "translate(0," + height + ")")
-       .call(xAxis)
+       .call(xAxis)*/
 
     // y axis for each series
-    svg.append("g")
+    /*svg.append("g")
        .attr("class", "y axis")
-       .call(yAxis)
+       .call(yAxis)*/
 
     // bars for each series
-    svg.selectAll(".bar")
-       .data(function(d) {return data[d.key];})
+    /*svg.selectAll(".bar")
+       .data(function(d) {weightedAverage(data[d.key]);return data[d.key];})
        .enter().append("rect")
        .attr("class", "bar")
        .attr("x", function(d) {return x(d.Year); })
        .attr("width", x.rangeBand())
        .attr("y", function(d) { return y(d.Percentage); })
-       .attr("height", function(d) { return height - y(d.Percentage); });
+       .attr("height", function(d) { return height - y(d.Percentage); });*/
+
+
+    // name of series
+    /*svg.append("text")
+      .attr("x", 0)
+      .attr("y", height + margin.top + 10)
+      .style("text-anchor", "start")
+      .attr('class', 'series-title')
+      .text(function(d) { return series_names[d.key]; });*/
   }
 }
 
