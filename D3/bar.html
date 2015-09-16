@@ -18,11 +18,12 @@
 
 h1 {
   font: 16px sans-serif;
-  //text-transform: uppercase;
+  /*text-transform: uppercase;*/
 }
 
 .goal {
   width: 500px;
+  margin-bottom: 20px;
 }
 
 .circle {
@@ -141,11 +142,16 @@ function makeSmallMultiples(error, data, names) {
 	  .enter().append("div")
 	  .attr("id", function(d){return "goal" + d.key;})
           .attr("class", "goal");
+
+      console.log("Goal 1. Eradicate extreme poverty and hunger".split("."))
 	 
       // name of goals as heading
-      goalDivs.append("h1")
-              .style('color', function(d){return goalColors(d.key);})
-	      .text(function(d){return goal_names[d.key];})
+      var goalHeader = goalDivs.append("h1");
+      goalHeader.append("span").text(function(d){return goal_names[d.key].split(".")[0]})
+                .style('color', function(d){return goalColors(d.key);})
+                .style('text-transform', "uppercase"); 
+      goalHeader.append("span").text(function(d){return goal_names[d.key].split(".")[1]}) 
+                .style('color', function(d){return goalColors(d.key);})  
 
       return goalDivs;  
   };
@@ -227,8 +233,8 @@ function makeSmallMultiples(error, data, names) {
 
     // one svg element for every series
     var svg = seriesDivs.append("svg")
-              .attr("width", 50)
-              .attr("height", 50);
+              .attr("width", 40)
+              .attr("height", 40);
 
     function configureTooltip(seriesData) {
        seriesData = seriesData.values[0] 
@@ -247,8 +253,8 @@ function makeSmallMultiples(error, data, names) {
     svg.append("circle")
        .attr("class", "circle")
        .attr("r", 8)
-       .attr("cx", 12) 
-       .attr("cy", 12)
+       .attr("cx", 24) 
+       .attr("cy", 24)
        .style("fill", function(d) { return circleColor(d.key, weightedAverage(data[d.key]));})
        //.on('mouseover', tip.show)
        //.on('mouseout', tip.hide)
@@ -316,7 +322,8 @@ function makeSmallMultiples(error, data, names) {
        .attr("width", x.rangeBand())
        .attr("y", function(d) { return y(d.Percentage); })
        .attr("height", function(d) { return height - y(d.Percentage); })
-       .style("fill", goalColors(goalId));
+       .style("fill", goalColors(goalId))
+       .append("svg:title").text(function(d) { return Math.round(d.Percentage*100.0) +"%" });
 
    series_names = d3.nest()
           .key(function(d) {return d.SeriesId})
