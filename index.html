@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<head>
+  <link rel="stylesheet" type="text/css" href="un.css">
+  <script src="d3.min.js"></script>
+  <script src="queue.v1.min.js"></script>
+
+  <script src="util.js"></script>
+  <script src="config.js"></script>
+  <script src="un.js"></script>
+</head>
+
+<body>
+
+<div class="overview"> </div>
+
+<script>
+
+
+// load the data
+queue()
+    .defer(d3.csv, 'data/metadata.csv') 
+    .defer(d3.csv, 'data/names.csv')  
+    .await(makeVisualization); 
+
+// keep track of which circle was selected
+var detailsSelected = "";
+
+// build the visualization, get's called when data has been loaded
+function makeVisualization(error, data, names) {
+   names = parseNames(names); 
+   
+   var viz = visualization(data, names);
+   viz.makeStructure();
+   viz.showCircles();
+}
+</script>
+</body>
+</html>
