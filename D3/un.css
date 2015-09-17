@@ -1,0 +1,45 @@
+.goal {
+  width: 500px;
+  margin-bottom: 40px;
+}
+
+.overview
+{
+  margin: 0 auto;
+  width: 500px; 
+}
+
+h1 {
+  font: 16px sans-serif;
+  /*text-transform: uppercase;*/
+}
+
+.circle {
+  cursor: pointer
+}
+
+/* configure bar plot */
+.axis {
+  font: 10px sans-serif;
+}
+
+.bar-title {
+  font: 10px sans-serif;
+  font-style: italic;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.y.axis path {
+  display: none;
+}
+
