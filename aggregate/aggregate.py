@@ -5,6 +5,7 @@ def read_mdg_data(filename):
     df = pd.read_csv(filename, sep="\t")
     df["IndicatorOrderClause"] = df["IndicatorOrderClause"].astype(str)
     df["Year"] = df["Year"].astype(int)
+    df["SeriesName"] = df["SeriesName"].str.replace("&quot;", "'")
     df = df.rename(columns={"SeriesOrderClause": "SeriesId"})
     return df
 
@@ -29,19 +30,14 @@ def extract_is_available(df):
 
 
 def all_combinations(df):
-    years = sorted(list(df["Year"].value_counts().index.values))
-    countries = sorted(list(df["ISO3Code"].value_counts().index.values))
-    series = sorted(list(df["SeriesId"].value_counts().index.values))
-
-    comb = list(product(series, countries, years))
+    comb = list(combinations_generator(df))
     comb = pd.DataFrame(comb, columns=["SeriesId", "ISO3Code", "Year"])
+    c = comb[comb.SeriesId==8601]
+    #print (c)
     comb = comb.set_index(["SeriesId", "ISO3Code", "Year"]).index
     return comb
 
 data = read_mdg_data("data.txt")
-
-# info about all countries
-countries = extract_countries(data)
 
 # map series -> indicator -> target -> goal
 names = extract_names(data)
@@ -57,7 +53,7 @@ available = extract_is_available(data)
 available = available.reindex(combinations).fillna(0)
 
 # add population column
-get_population = configure_get_population(countries)
+get_population = configure_get_population(data)
 available["population"] = available.apply(lambda row: get_population(iso_code=row.name[1], year=row.name[2]),
                                           axis=1)
 
@@ -72,3 +68,6 @@ population_available = available.groupby(level=[0, 2]).sum()
 ratio_available = population_available / population_total
 ratio_available.name = "Ratio"
 ratio_available.reset_index().to_csv("aggregated.csv", index=False)
+
+s = data.groupby(["SeriesId", "SeriesName"]).first().reset_index()[["SeriesId", "SeriesName"]]
+s.to_csv("s.csv")
