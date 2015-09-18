@@ -64,6 +64,17 @@ function visualization(data, names) {
                   .attr("width", circle.width)
                   .attr("height", circle.height);
 
+       // one circle to be used as marker if series has been selected
+       svg.append("circle")
+           .attr("class", "circle-border")
+           .attr("r", circle.radius + 4)
+           .attr("cx", circle.cx) 
+           .attr("cy", circle.cy)
+           .attr('fill-opacity', 0)
+           .style("stroke", function(d) {return circleColor(d.key);})
+           .style("stroke-width", 3)
+           .style("display", "none");
+
         // one circle for every series
         svg.append("circle")
            .attr("class", "circle")
@@ -73,13 +84,14 @@ function visualization(data, names) {
            .style("fill", function(d) {return circleColor(d.key);})
            .on('click', function(d) {showDetails(d.key);})
            .append("title").text(function (d){return names.series[d.key];});
+
     }
 
     this.showDetails = function(series) {
       
         // remove previous details
-        d3.select(".details").remove()
-        d3.selectAll(".circle").style("stroke", "none");
+        d3.select(".details").remove();
+        d3.select("#series"+detailsSelected).select(".circle-border").style("display", "none");
 
         // same series as previously was selected -> unselect
         if (detailsSelected === series) {
@@ -90,7 +102,7 @@ function visualization(data, names) {
             detailsSelected = series;       
 
         // make a border around the selected circle
-        d3.select("#series"+series).select(".circle").style("stroke", "black"); 
+        d3.select("#series"+series).select(".circle-border").style("display", "inline");
 
         // which goal does this series belong to? make a div under this goal
         var goal = names.seriesToGoal[series];
