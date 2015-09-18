@@ -64,10 +64,6 @@ function visualization(data, names) {
                   .attr("width", circle.width)
                   .attr("height", circle.height);
 
-        // show name of series as tooltip
-        svg.append("svg:title")
-           .text(function (d){return names.series[d.key];});
-
         // one circle for every series
         svg.append("circle")
            .attr("class", "circle")
@@ -75,7 +71,8 @@ function visualization(data, names) {
            .attr("cx", circle.cx) 
            .attr("cy", circle.cy)
            .style("fill", function(d) {return circleColor(d.key);})
-           .on('click', function(d) {showDetails(d.key);});     
+           .on('click', function(d) {showDetails(d.key);})
+           .append("title").text(function (d){return names.series[d.key];});
     }
 
     this.showDetails = function(series) {
