@@ -70,5 +70,5 @@ population_available = available.groupby(level=[0, 2]).sum()
 
 # ratio of people for which data is available, per year and series
 ratio_available = population_available / population_total
-ratio_available.name = "Ratio available"
+ratio_available.name = "Ratio"
 ratio_available.reset_index().to_csv("aggregated.csv", index=False)
