@@ -1,4 +1,15 @@
 
+// some series are only relevant for some countries
+restricted_series = {8401: " (using only data for land-locked developing countries)",
+                     8402: " (using only data for land-locked developing countries)",
+                     8102: " (using only data for least-developed countries)",
+                     8104: " (using only data for least-developed countries)",
+                     8501: " (using only data for small-island developing countries)",
+                     8502: " (using only data for small-island developing countries)",
+                     8601: " (using only data for developing countries)",
+                     8602: " (using only data for developing countries)"
+                    }
+
 function visualization(data, names) {
 
     this.makeStructure = function() {
@@ -83,7 +94,7 @@ function visualization(data, names) {
            .attr("cy", circle.cy)
            .style("fill", function(d) {return circleColor(d.key);})
            .on('click', function(d) {showDetails(d.key);})
-           .append("title").text(function (d){return names.series[d.key];});
+           .append("title").text(function (d){return seriesTitle(d.key);});
 
     }
 
@@ -112,7 +123,7 @@ function visualization(data, names) {
 
         // put barplot into this div
         var color = goalColors[goal].color;
-        var title = names.series[series];
+        var title = seriesTitle(series);
         makeBarplot(detailsDiv, data[series], title, color);
     }
 
@@ -187,26 +198,14 @@ function visualization(data, names) {
           .append("text")
           .text(title);
     }
- 
+
+    this.seriesTitle = function(series) {
+       title = names.series[series];
+       if (series in restricted_series)
+          title += restricted_series[series]
+       return title
+    }
+
     return this;
-
-}
-
-
-function showLegend() {
-var legend = d3.select('#legend')
-  .append('ul')
-    .attr('class', 'list-inline');
-
-var keys = legend.selectAll('li.key')
-    .data(goalColors[3].scale.range());
-
-keys.enter().append('li')
-    .attr('class', 'key')
-    .style('border-top-color', String)
-    .text(function(d) {
-        var r = goalColors[3].scale.range().invertExtent(d);
-        return formats.percent(r[0]);
-    });
 
 }
