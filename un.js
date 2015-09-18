@@ -49,7 +49,7 @@ function visualization(data, names) {
     this.showCircles = function() {
 
          data = d3.nest()
-               .key(function(d) {return d.Series})
+               .key(function(d) {return d.SeriesId})
                .map(data);
         
         function circleColor(series) {
@@ -176,10 +176,10 @@ function visualization(data, names) {
            .attr("class", "bar")
            .attr("x", function(d) {return x(d.Year); })
            .attr("width", x.rangeBand())
-           .attr("y", function(d) { return y(d.Percentage * 100.0); })
-           .attr("height", function(d) { return bar.height - y(d.Percentage*100.0); })
+           .attr("y", function(d) { return y(d.Ratio * 100.0); })
+           .attr("height", function(d) { return bar.height - y(d.Ratio*100.0); })
            .style("fill", color)
-           .append("svg:title").text(function(d) { return Math.round(d.Percentage*100.0) +"%" });
+           .append("svg:title").text(function(d) { return Math.round(d.Ratio*100.0) +"%" });
 
         // plot title
         div.append("div")

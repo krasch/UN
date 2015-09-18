@@ -48,7 +48,7 @@
 
 // load the data
 queue()
-    .defer(d3.csv, 'data/metadata.csv') 
+    .defer(d3.csv, 'data/aggregated.csv')
     .defer(d3.csv, 'data/names.csv')  
     .await(makeVisualization); 
 
