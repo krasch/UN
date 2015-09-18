@@ -13,10 +13,22 @@
 
 <body>
 
-<div class="overview"> </div>
+<div class="header">
+   <h1 class="title"> Behind the scenes</h1>
+   <h2 class="subtitle"> of the UN Millenium Goal Development Report</h2>   
+</div>
+
+<div class="introduction">
+   Data is important. Lorem ipsum. Use as companion blabla.
+   <div class="manual">
+      <img src="manual.svg" title="Explanation on how to use this vizualization"/>
+   </div>
+</div>
+
+<div id="legend"></div>
+<div class="visualization"> </div>
 
 <script>
-
 
 // load the data
 queue()
@@ -29,11 +41,13 @@ var detailsSelected = "";
 
 // build the visualization, get's called when data has been loaded
 function makeVisualization(error, data, names) {
+
    names = parseNames(names); 
    
    var viz = visualization(data, names);
    viz.makeStructure();
    viz.showCircles();
+   //showLegend();
 }
 </script>
 </body>

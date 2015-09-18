@@ -3,14 +3,53 @@
   margin-bottom: 40px;
 }
 
-.overview
+.visualization
 {
   margin: 0 auto;
   width: 500px; 
 }
 
-h1 {
-  font: 16px sans-serif;
+.header {
+  margin: 0 auto;
+  width: 600px;
+  margin-bottom: 40px;  
+}
+
+.introduction {
+  margin: 0 auto;
+  width: 500px;
+  margin-bottom: 40px;  
+}
+
+.title {
+  font: 57px sans-serif;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  font: 24px sans-serif;
+  margin-top: 0px;
+  margin-bottom: 20px;
+}
+
+.introduction {
+  font: 20px sans-serif;
+  color: #8090a0;
+  margin-bottom: 50px;
+}
+
+.manual {
+  /*background-color: #dfdfc6; */
+  /*border-style: solid;
+  border-color: #8090a0;
+  border-width: 0.5px;*/
+  margin-top: 30px;
+}
+
+.goalHeader {
+  font: 22px sans-serif;
   /*text-transform: uppercase;*/
 }
 
@@ -19,13 +58,25 @@ h1 {
 }
 
 /* configure bar plot */
+
+.details {
+  margin-top: 30px;
+  /*border-style: solid;*/
+}
+
 .axis {
-  font: 10px sans-serif;
+  font: 12px sans-serif;
 }
 
 .bar-title {
-  font: 10px sans-serif;
-  font-style: italic;
+  font: 12px sans-serif;
+  /*font-style: italic;*/
+  text-align: center;
+}
+
+.y-title {
+  font: 12px sans-serif;
+  /*font-style: italic;*/
 }
 
 .axis path,

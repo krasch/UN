@@ -4,14 +4,14 @@ function visualization(data, names) {
     this.makeStructure = function() {
         
         // one div for every goal
-        var goalDivs = d3.select(".overview").selectAll("div")
+        var goalDivs = d3.select(".visualization").selectAll("div")
 	      .data(names.mapping)
 	      .enter().append("div")
 	      .attr("id", function(d){return "goal" + d.key;})
               .attr("class", "goal");
 
         // name of goals as heading
-        var goalHeader = goalDivs.append("h1");
+        var goalHeader = goalDivs.append("h1").attr("class", "goalHeader");
         goalHeader.append("span").text(function(d){return names.goals[d.key].split(".")[0]})
                   .style('color', function(d){return goalColors[d.key].color;})
                   .style('text-transform', "uppercase"); 
@@ -89,7 +89,9 @@ function visualization(data, names) {
             detailsSelected = "";
             return;
         }
-       
+        else
+            detailsSelected = series;       
+
         // make a border around the selected circle
         d3.select("#series"+series).select(".circle").style("stroke", "black"); 
 
@@ -109,24 +111,24 @@ function visualization(data, names) {
 
         // configure x axis
         var x = d3.scale.ordinal()
-                .rangeRoundBands([0, bar.width], .1);
-        x.domain([ 1983, 1984, 1985, 1986, 1987, 1988, 1989, 
+                .rangeRoundBands([0, bar.width], .3);
+        x.domain([  //1983, 1984, 1985, 1986, 1987, 1988, 1989, 
                     1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998, 1999, 
                     2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009,
                     2010, 2011, 2012, 2013, 2014, 2015]);
         var xAxis = d3.svg.axis()
                     .scale(x)
                     .orient("bottom")
-                    .tickValues([1985, 1990, 1995, 2000, 2005, 2010, 2015]);
+                    .tickValues([1990, 1995, 2000, 2005, 2010, 2015]);
 
         // configure y axis
         var y = d3.scale.linear()
                 .range([bar.height, 0]);
-        y.domain([0, 1]);
+        y.domain([0, 100]);
         var yAxis = d3.svg.axis()
                     .scale(y)
                     .orient("left")
-                    .tickValues([0, 0.5, 1.0], "%");
+                    .tickValues([0, 50, 100], "%");
 
         // make svg for plot
         var svg = div.append("svg")
@@ -139,12 +141,24 @@ function visualization(data, names) {
         svg.append("g")
            .attr("class", "x axis")
            .attr("transform", "translate(0," + bar.height + ")")
-           .call(xAxis)
+           .call(xAxis);
 
         // plot y axis 
-        svg.append("g")
+        var yElement = svg.append("g")
            .attr("class", "y axis")
            .call(yAxis)
+        yElement.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -55)
+          .style("text-anchor", "end")
+          .text("Percentage of population")
+          .attr("class", "y-title");
+         yElement.append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -40)
+          .style("text-anchor", "end")
+          .text("for which data is available")
+          .attr("class", "y-title");
 
         // plot bars 
         svg.selectAll(".bar")
@@ -153,22 +167,37 @@ function visualization(data, names) {
            .attr("class", "bar")
            .attr("x", function(d) {return x(d.Year); })
            .attr("width", x.rangeBand())
-           .attr("y", function(d) { return y(d.Percentage); })
-           .attr("height", function(d) { return bar.height - y(d.Percentage); })
+           .attr("y", function(d) { return y(d.Percentage * 100.0); })
+           .attr("height", function(d) { return bar.height - y(d.Percentage*100.0); })
            .style("fill", color)
            .append("svg:title").text(function(d) { return Math.round(d.Percentage*100.0) +"%" });
 
         // plot title
-        svg.append("text")
-          .attr("x", 0)
-          .attr("y", bar.height + bar.margin.top + 10)
-          .style("text-anchor", "start")
+        div.append("div")
           .attr('class', 'bar-title')
+          .append("text")
           .text(title);
-
     }
-
+ 
     return this;
 
 }
 
+
+function showLegend() {
+var legend = d3.select('#legend')
+  .append('ul')
+    .attr('class', 'list-inline');
+
+var keys = legend.selectAll('li.key')
+    .data(goalColors[3].scale.range());
+
+keys.enter().append('li')
+    .attr('class', 'key')
+    .style('border-top-color', String)
+    .text(function(d) {
+        var r = goalColors[3].scale.range().invertExtent(d);
+        return formats.percent(r[0]);
+    });
+
+}
