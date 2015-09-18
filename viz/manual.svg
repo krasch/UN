@@ -248,7 +248,7 @@
        sodipodi:cy="107.85714"
        sodipodi:rx="20.714285"
        sodipodi:ry="20.714285"
-       d="m 122.85715,107.85714 a 20.714285,20.714285 0 1 1 -41.428574,0 20.714285,20.714285 0 1 1 41.428574,0 z"
+       d="m 122.85715,107.85714 c 0,11.44018 -9.27411,20.71428 -20.71429,20.71428 -11.440183,0 -20.714284,-9.2741 -20.714284,-20.71428 0,-11.440184 9.274101,-20.714285 20.714284,-20.714285 11.44018,0 20.71429,9.274101 20.71429,20.714285 z"
        transform="matrix(0.72413796,0,0,0.72413041,-28.465517,878.75969)" />
     <g
        id="g5358"
@@ -414,7 +414,7 @@
        inkscape:connector-curvature="0"
        id="path5872"
        d="m 388.20315,962.45859 c -0.25254,84.34771 -0.25254,84.34771 -0.25254,84.34771"
-       style="fill:none;stroke:#8090a0;stroke-width:1.08000004;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow2MstartP);marker-end:url(#Arrow2Mendk)" />
+       style="fill:none;stroke:#8090a0;stroke-width:1.08;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-start:url(#Arrow2MstartP);marker-end:none" />
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#8090a0;fill-opacity:1;stroke:none;font-family:Sans"
@@ -446,7 +446,12 @@
          x="394.78946"
          y="1033.6921"
          style="font-size:10px;fill:#8090a0;fill-opacity:1"
-         id="tspan6671">data is available</tspan></text>
+         id="tspan6671">data is available</tspan><tspan
+         sodipodi:role="line"
+         x="394.78946"
+         y="1046.1921"
+         style="font-size:10px;fill:#8090a0;fill-opacity:1"
+         id="tspan4103">for each year</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#8090a0;fill-opacity:1;stroke:none;font-family:Sans"
