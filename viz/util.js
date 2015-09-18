@@ -52,7 +52,7 @@ function weightedAverage(seriesData) {
         else
            return 0.5/20.0;
     }
-    weightedPercentages = seriesData.map(function(d) {return weight(d.Year)*d.Percentage});
+    weightedPercentages = seriesData.map(function(d) {return weight(d.Year)*d.Ratio});
     return d3.sum(weightedPercentages);
 }
 
