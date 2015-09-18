@@ -1,4 +1,4 @@
-var goalColors = configureGoalColors(["#832a64", "#006800", "#2a6eb3", "#bb244d",
+var goalColors = configureGoalColors(["#832a64", "#2a6eb3", "#006800", "#bb244d",
                                       "#878787", "#dc624d",  "#2c4c6c", "#8c510a"]);
 
 var circle = {width: 45, height: 45,
