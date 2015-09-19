@@ -60,6 +60,14 @@
   cursor: pointer
 }
 
+.impressum {
+  margin: 0 auto;
+  width: 500px;
+  text-align: center;
+  font: 12px sans-serif;
+  color: #8090a0;
+}
+
 /* configure bar plot */
 
 .details {
