@@ -12,6 +12,7 @@
   margin-bottom: 4px;
   text-align: center;
   color: #2c4c6c;
+  font-weight: 500;
 }
 
 .subtitle {
@@ -20,6 +21,7 @@
   margin-top: 0px;
   margin-bottom: 20px;
   color: #2c4c6c;
+  font-weight: 500;
 }
 
 .introduction {
